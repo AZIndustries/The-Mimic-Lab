@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE MIMIC — Laboratoire de surface adaptative</title>
+<style>
+:root{--bg:#080d14;--panel:#101a27;--panel2:#0c1420;--line:#26384c;--muted:#91a4b9;--text:#e8f1fa;--cyan:#55d9e8;--gold:#e6b86a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1b3045 0,#080d14 55%);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{padding:22px clamp(16px,4vw,42px) 16px;border-bottom:1px solid #203044;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:13px}.logo{width:42px;height:42px;border:1px solid #3b7184;border-radius:13px;display:grid;place-items:center;color:var(--cyan);font-weight:800;font-size:20px;box-shadow:0 0 24px #35c5d522 inset}
+h1{font-size:19px;letter-spacing:.19em;margin:0;font-weight:750}.sub{color:var(--muted);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-top:3px}
+.status{color:#9de6d2;font-size:11px;letter-spacing:.08em;display:flex;align-items:center;gap:8px}.dot{width:7px;height:7px;background:#5ce0ad;border-radius:50%;box-shadow:0 0 12px #5ce0ad}
+main{max-width:1500px;margin:auto;padding:24px clamp(14px,3vw,34px) 40px}
+.intro{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:18px}.eyebrow{color:var(--cyan);font-size:10px;letter-spacing:.2em;text-transform:uppercase}.intro h2{font-size:clamp(22px,3vw,32px);margin:5px 0 3px;letter-spacing:-.035em}.intro p{color:var(--muted);margin:0;max-width:720px}.tag{border:1px solid #31516a;border-radius:30px;padding:7px 12px;color:#b7dce7;font-size:11px;white-space:nowrap}
+.workspace{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(340px,.9fr);gap:16px}
+.panel{background:linear-gradient(145deg,#111d2b,#0b131e);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 14px 38px #0004}
+.panelhead{padding:14px 17px;border-bottom:1px solid #213246;display:flex;justify-content:space-between;align-items:center;gap:12px}.paneltitle{font-weight:700;letter-spacing:.04em}.panelmeta{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.canvaswrap{position:relative;background:radial-gradient(ellipse at 50% 48%,#172b3c 0,#0a121d 68%);min-height:430px}
+#sphereCanvas{display:block;width:100%;height:430px;touch-action:pan-y}
+.overlay{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:5px;pointer-events:none}.overlay strong{font-size:12px;letter-spacing:.12em}.overlay span{font-size:10px;color:#8da7bc}
+.crosshair{position:absolute;right:18px;top:17px;border:1px solid #416075;color:#a8c6d7;border-radius:6px;padding:5px 8px;font-size:10px;background:#0b1520aa}
+.legend{display:flex;justify-content:space-between;padding:11px 16px;border-top:1px solid #1e3042;color:var(--muted);font-size:11px;gap:10px}
+.legend b{color:#d8e8f4;font-weight:600}
+.rightcol{display:flex;flex-direction:column;gap:16px}
+#microCanvas{display:block;width:100%;height:310px;background:radial-gradient(ellipse at 50% 45%,#1b3041,#0a121d 75%)}
+.microreadout{padding:10px 15px;border-top:1px solid #203246;display:flex;justify-content:space-between;color:var(--muted);font-size:10px;gap:8px}.microreadout b{color:#d7edf5}
+.controls{padding:16px}.sectionlabel{font-size:10px;color:var(--cyan);letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px}
+.materials{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mat{background:#101c29;border:1px solid #2a3d51;border-radius:9px;color:#d9e7f1;padding:10px 8px;text-align:left;cursor:pointer;transition:.18s;min-height:58px}
+.mat:hover{border-color:#5a9fb0;transform:translateY(-1px)}.mat.active{border-color:var(--cyan);background:linear-gradient(135deg,#153342,#10202c);box-shadow:0 0 0 1px #55d9e833 inset}
+.swatch{display:block;width:22px;height:7px;border-radius:4px;margin-bottom:7px;background:var(--sw)}.mat strong{display:block;font-size:12px}.mat small{display:block;color:#8fa5b8;font-size:10px;margin-top:2px}
+.divider{height:1px;background:#213246;margin:16px 0}
+.sliderrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:12px 0 4px}.sliderrow label{color:#c6d5e2;font-size:12px}.sliderrow output{font-size:11px;color:var(--cyan);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:#55d9e8;cursor:pointer}
+.rangehint{font-size:10px;color:#8196aa;display:flex;justify-content:space-between}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.metric{background:#0b1520;border:1px solid #203247;border-radius:9px;padding:9px}.metric span{display:block;color:#8299ad;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.metric b{display:block;font-size:15px;margin-top:3px;font-variant-numeric:tabular-nums}
+.bottomnote{margin-top:16px;padding:13px 16px;border:1px solid #26394d;border-radius:12px;color:#91a6b9;background:#0b1420;font-size:11px}.bottomnote strong{color:#d7e9f3}
+button:focus-visible,input:focus-visible{outline:2px solid #75e5ef;outline-offset:2px}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.rightcol{display:grid;grid-template-columns:1fr 1fr}.rightcol .controls{grid-column:1/-1}.canvaswrap{min-height:350px}#sphereCanvas{height:350px}}
+@media(max-width:600px){header{align-items:flex-start}.status{display:none}.intro{align-items:flex-start;flex-direction:column}.rightcol{display:flex}.materials{grid-template-columns:repeat(2,1fr)}#sphereCanvas{height:320px}.canvaswrap{min-height:320px}#microCanvas{height:280px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">M</div><div><h1>THE MIMIC</h1><div class="sub">Adaptive surface research interface · v0.1</div></div></div>
+ <div class="status"><i class="dot"></i> SIMULATION ACTIVE <span style="color:#526b80">/</span> LOCAL RENDER</div>
+</header>
+<main>
+ <div class="intro">
+  <div><div class="eyebrow">Digital material demonstrator</div><h2>Surface replication laboratory</h2><p>Explore a programmable spherical skin. Select a reference material, then inspect how a conceptual micro-actuator field reshapes the surface profile.</p></div>
+  <div class="tag">SPECIMEN 001 &nbsp;·&nbsp; SPHERE</div>
+ </div>
+ <div class="workspace">
+  <section class="panel">
+   <div class="panelhead"><div><div class="paneltitle">01 / MACRO SURFACE</div><div class="panelmeta">3D specimen · material appearance</div></div><div class="panelmeta" id="macroState">WOOD · ACTIVE</div></div>
+   <div class="canvaswrap"><canvas id="sphereCanvas"></canvas><div class="overlay"><strong>THE MIMIC / OUTER SKIN</strong><span>Drag to rotate · scroll to zoom</span></div><div class="crosshair">SURFACE VIEW · 1.0×</div></div>
+   <div class="legend"><span>Reference material: <b id="materialName">Oak wood</b></span><span>Surface response: <b id="surfaceState">Conforming</b></span></div>
+  </section>
+  <div class="rightcol">
+   <section class="panel">
+    <div class="panelhead"><div><div class="paneltitle">02 / MICROSTRUCTURE</div><div class="panelmeta">Magnified surface cutaway</div></div><div class="panelmeta">× 850</div></div>
+    <canvas id="microCanvas"></canvas>
+    <div class="microreadout"><span>ACTUATOR FIELD <b id="actuatorCount">12 × 5 cells</b></span><span>PROFILE <b id="profileName">ROUGH</b></span></div>
+   </section>
+   <section class="panel controls">
+    <p class="sectionlabel">Reference material library</p>
+    <div class="materials" id="materials">
+     <button class="mat active" data-mat="wood" style="--sw:#9b6138"><i class="swatch"></i><strong>Oak wood</strong><small>Grain · rough</small></button>
+     <button class="mat" data-mat="rust" style="--sw:#a64f2b"><i class="swatch"></i><strong>Rust</strong><small>Oxide · coarse</small></button>
+     <button class="mat" data-mat="aluminum" style="--sw:#aebbc4"><i class="swatch"></i><strong>Aluminum</strong><small>Brushed · satin</small></button>
+     <button class="mat" data-mat="gold" style="--sw:#d9ad45"><i class="swatch"></i><strong>Gold</strong><small>Polished · smooth</small></button>
+     <button class="mat" data-mat="steel" style="--sw:#71899b"><i class="swatch"></i><strong>Steel</strong><small>Machined · smooth</small></button>
+     <button class="mat" data-mat="ceramic" style="--sw:#d8d7cf"><i class="swatch"></i><strong>Ceramic</strong><small>Glazed · smooth</small></button>
+    </div>
+    <div class="divider"></div>
+    <p class="sectionlabel">Mimic response parameters</p>
+    <div class="sliderrow"><label for="rough">Micro-relief amplitude</label><output id="roughVal">68%</output></div><input id="rough" type="range" min="0" max="100" value="68"><div class="rangehint"><span>Polished</span><span>Highly textured</span></div>
+    <div class="sliderrow"><label for="gloss">Optical gloss</label><output id="glossVal">32%</output></div><input id="gloss" type="range" min="0" max="100" value="32"><div class="rangehint"><span>Matte</span><span>Mirror-like</span></div>
+    <div class="sliderrow"><label for="speed">Actuator transition speed</label><output id="speedVal">55%</output></div><input id="speed" type="range" min="5" max="100" value="55"><div class="rangehint"><span>Slow</span><span>Fast</span></div>
+    <div class="metrics">
+     <div class="metric"><span>Roughness index</span><b id="roughMetric">0.68</b></div>
+     <div class="metric"><span>Gloss index</span><b id="glossMetric">0.32</b></div>
+     <div class="metric"><span>Response</span><b id="speedMetric">55%</b></div>
+    </div>
+   </section>
+  </div>
+ </div>
+ <div class="bottomnote"><strong>Engineering note —</strong> This is an interactive concept visualization, not a validated physical model. The sphere uses procedural shading and the cutaway uses an illustrative actuator array; the displayed roughness/gloss values are control parameters, not measured material constants. Real replication would require material-specific profilometry, optical measurements, actuator calibration and closed-loop sensing.</div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const sphere=$('sphereCanvas'), sc=sphere.getContext('2d'), micro=$('microCanvas'), mc=micro.getContext('2d');
+const mats={
+ wood:{name:'Oak wood',base:[151,91,49],rough:.68,gloss:.32,profile:'ROUGH',grain:1},
+ rust:{name:'Oxidized iron',base:[153,69,39],rough:.88,gloss:.12,profile:'COARSE',grain:2},
+ aluminum:{name:'Brushed aluminum',base:[164,181,192],rough:.34,gloss:.57,profile:'SATIN',grain:3},
+ gold:{name:'Polished gold',base:[205,157,55],rough:.12,gloss:.91,profile:'SMOOTH',grain:4},
+ steel:{name:'Machined steel',base:[104,132,151],rough:.18,gloss:.82,profile:'SMOOTH',grain:5},
+ ceramic:{name:'Glazed ceramic',base:[205,207,199],rough:.09,gloss:.88,profile:'POLISHED',grain:6}
+};
+let current='wood', targetR=.68,targetG=.32,rough=.68,gloss=.32,speed=.55,phase=0,rot=-.35,tilt=.15,zoom=1,drag=null,last=0;
+let W=0,H=0,mW=0,mH=0;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function resize(){
+ const dpr=Math.min(devicePixelRatio||1,2);
+ for(const [c,ctx] of [[sphere,sc],[micro,mc]]){
+  const r=c.getBoundingClientRect();const w=Math.max(1,r.width),h=Math.max(1,r.height);
+  c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(c===sphere){W=w;H=h}else{mW=w;mH=h}
+ }
+}
+new ResizeObserver(resize).observe(sphere);new ResizeObserver(resize).observe(micro);resize();
+function hash(x,y){let n=Math.sin(x*127.1+y*311.7+ mats[current].grain*74.7)*43758.5453;return n-Math.floor(n)}
+function noise(x,y){let ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);return (hash(ix,iy)*(1-fx)+hash(ix+1,iy)*fx)*(1-fy)+(hash(ix,iy+1)*(1-fx)+hash(ix+1,iy+1)*fx)*fy}
+function drawSphere(t){
+ sc.clearRect(0,0,W,H);let cx=W*.5,cy=H*.52,R=Math.min(W*.34,H*.405)*zoom;
+ // ambient radial backdrop
+ let bg=sc.createRadialGradient(cx,cy,10,cx,cy,R*1.8);bg.addColorStop(0,'#1b3345');bg.addColorStop(1,'#09131e');sc.fillStyle=bg;sc.fillRect(0,0,W,H);
+ // soft shadow
+ sc.save();sc.translate(cx+R*.12,cy+R*.88);sc.scale(1,.17);let sh=sc.createRadialGradient(0,0,2,0,0,R*.95);sh.addColorStop(0,'#0009');sh.addColorStop(1,'#0000');sc.fillStyle=sh;sc.beginPath();sc.arc(0,0,R,0,Math.PI*2);sc.fill();sc.restore();
+ const mat=mats[current],base=mat.base;
+ // sphere surface with latitude-longitude sampling and procedural texture
+ const step=2.1; let light=[-.48,-.55,.68]; const lightLen=Math.hypot(...light);light=light.map(v=>v/lightLen);
+ for(let y=-R;y<R;y+=step){for(let x=-R;x<R;x+=step){
+  let nx=x/R,ny=y/R,d=nx*nx+ny*ny;if(d>1)continue;
+  let nz=Math.sqrt(1-d);
+  // rotate the normal around vertical axis
+  let rx=nx*Math.cos(rot)-nz*Math.sin(rot), rz=nx*Math.sin(rot)+nz*Math.cos(rot);
+  let ry=ny*Math.cos(tilt)-rz*Math.sin(tilt);rz=ny*Math.sin(tilt)+rz*Math.cos(tilt);
+  let u=(Math.atan2(rz,rx)+Math.PI)/(Math.PI*2),v=Math.acos(clamp(ry,-1,1))/Math.PI;
+  let grain=0,n=0;
+  if(current==='wood') grain=Math.sin((v*140+noise(u*40,v*12)*5)*Math.PI)*.12+noise(u*90,v*60)*.22;
+  else if(current==='rust') grain=(noise(u*105,v*90)-.5)*.85+(noise(u*22,v*18)-.5)*.3;
+  else if(current==='aluminum') grain=Math.sin((u*900+noise(u*20,v*30)*8))*0.12;
+  else grain=(noise(u*140,v*140)-.5)*.12;
+  let microrel=(noise(u*190,v*180)-.5)*rough*.34+grain*rough;
+  let ndotl=clamp(nx*light[0]+ny*light[1]+nz*light[2],0,1);
+  let ambient=.34, diffuse=.48*ndotl;
+  let view=clamp(nz,0,1),spec=Math.pow(clamp((nx*-.32+ny*-.42+nz*.85),0,1),mix(8,95,gloss))*gloss*.9;
+  let edge=clamp((1-d)*4,0,1);
+  let shade=ambient+diffuse+spec+microrel*.24;
+  let variation=(noise(u*75,v*80)-.5)*(current==='wood'||current==='rust'?.23:.055);
+  let c=base.map((b,i)=>clamp(b*shade*(1+variation+(i===0?microrel*.16:0)),0,255));
+  // small glint variation
+  sc.fillStyle=`rgb(${c.map(Math.round).join(',')})`;sc.fillRect(cx+x,cy+y,step+0.4,step+0.4);
+ }}
+ // crisp silhouette and rim
+ sc.beginPath();sc.arc(cx,cy,R,0,Math.PI*2);sc.strokeStyle='#9bd5e522';sc.lineWidth=1.2;sc.stroke();
+ let rim=sc.createRadialGradient(cx-R*.35,cy-R*.45,R*.45,cx,cy,R*1.02);rim.addColorStop(.75,'#ffffff00');rim.addColorStop(1,'#8bd8f044');sc.fillStyle=rim;sc.beginPath();sc.arc(cx,cy,R,0,Math.PI*2);sc.fill();
+ // specular highlight
+ let hx=cx-R*.34,hy=cy-R*.43;let hg=sc.createRadialGradient(hx,hy,1,hx,hy,R*.43);hg.addColorStop(0,`rgba(255,255,255,${.08+gloss*.28})`);hg.addColorStop(1,'#ffffff00');sc.fillStyle=hg;sc.beginPath();sc.arc(cx,cy,R,0,Math.PI*2);sc.fill();
+ sc.fillStyle='#d5e7f2';sc.font='10px system-ui';sc.fillText('ROTATION  '+Math.round(((rot%(Math.PI*2))*180/Math.PI+360)%360)+'°',16,H-17);
+}
+function mix(a,b,t){return a+(b-a)*t}
+function drawMicro(t){
+ mc.clearRect(0,0,mW,mH);let w=mW,h=mH;
+ // subtle grid
+ mc.strokeStyle='#29415455';mc.lineWidth=1;for(let x=0;x<w;x+=24){mc.beginPath();mc.moveTo(x,0);mc.lineTo(x,h);mc.stroke()}for(let y=0;y<h;y+=24){mc.beginPath();mc.moveTo(0,y);mc.lineTo(w,y);mc.stroke()}
+ let left=22,right=w-20,baseY=h*.70,cols=12,cell=(right-left)/cols,rows=5,mat=mats[current];
+ // substrate body
+ mc.fillStyle='#30495c';mc.beginPath();mc.moveTo(left,baseY+13);mc.lineTo(right,baseY+13);mc.lineTo(right,h-19);mc.lineTo(left,h-19);mc.closePath();mc.fill();
+ mc.fillStyle='#1c2e3e';mc.fillRect(left,baseY+13,right-left,h-baseY-32);
+ // actuator columns: piston stems extend from substrate to cap
+ let amp=rough*35;
+ for(let i=0;i<cols;i++){
+  for(let j=0;j<rows;j++){
+   let x=left+(i+.5)*cell, y0=baseY+8+j*3.4;
+   let wave=Math.sin(t*speed*2.3+i*.77+j*.52);
+   let target=(noise(i*.7,j*.8)-.5)*amp;
+   let height=clamp(10+target+wave*amp*.17,3,47);
+   let top=y0-height;
+   // actuator housing
+   mc.fillStyle=j===0?'#55768b':'#3c596e';mc.fillRect(x-cell*.22,y0,cell*.44,baseY+22-y0);
+   // moving shaft
+   mc.fillStyle='#8bb5c5';mc.fillRect(x-2.2,top+4,4,Math.max(2,height-3));
+   mc.fillStyle='#b6d5df';mc.beginPath();mc.ellipse(x,top+4,cell*.22,3,0,0,Math.PI*2);mc.fill();
+   mc.fillStyle='#142331';mc.beginPath();mc.arc(x,y0+3,2.1,0,Math.PI*2);mc.fill();
+  }
+ }
+ // continuous outer skin follows a material-specific rough profile
+ mc.beginPath();
+ for(let x=0;x<=right-left;x+=2){let u=x/(right-left),noiseVal=noise(u*22,3.2);let grain=current==='wood'?Math.sin(u*85+noiseVal*3)*.25:current==='rust'?(noiseVal-.5)*1.2:Math.sin(u*170)*.07;
+  let y=baseY-rough*(9+grain*17)-Math.sin(u*cols*Math.PI*2+t*speed*1.2)*rough*2.4;
+  if(x===0)mc.moveTo(left+x,y);else mc.lineTo(left+x,y);
+ }
+ mc.lineTo(right,baseY+8);mc.lineTo(left,baseY+8);mc.closePath();
+ let skin=mc.createLinearGradient(0,baseY-40,0,baseY+8);let c=mat.base;skin.addColorStop(0,`rgb(${c.join(',')})`);skin.addColorStop(1,`rgb(${c.map(v=>Math.round(v*.57)).join(',')})`);mc.fillStyle=skin;mc.fill();
+ mc.strokeStyle='#b9e7ef';mc.lineWidth=2;mc.beginPath();for(let x=0;x<=right-left;x+=2){let u=x/(right-left),nv=noise(u*22,3.2),grain=current==='wood'?Math.sin(u*85+nv*3)*.25:current==='rust'?(nv-.5)*1.2:Math.sin(u*170)*.07;let y=baseY-rough*(9+grain*17)-Math.sin(u*cols*Math.PI*2+t*speed*1.2)*rough*2.4;if(x===0)mc.moveTo(left+x,y);else mc.lineTo(left+x,y)}mc.stroke();
+ // dimension guide and labels
+ mc.strokeStyle='#7b9db1';mc.setLineDash([3,4]);mc.beginPath();mc.moveTo(left,baseY+27);mc.lineTo(right,baseY+27);mc.stroke();mc.setLineDash([]);
+ mc.fillStyle='#a8c2d2';mc.font='10px system-ui';mc.fillText('ADAPTIVE OUTER SKIN',left+5,18);mc.fillText('PIEZOELECTRIC / MICRO-ACTUATOR CONCEPT',left+5,h-7);
+ mc.fillStyle='#6f8da3';mc.font='9px system-ui';mc.fillText('MOVING ELEMENTS',left+5,baseY+45);
+}
+function updateLabels(){
+ const m=mats[current];$('materialName').textContent=m.name;$('macroState').textContent=current.toUpperCase()+' · ACTIVE';$('profileName').textContent=m.profile;
+ $('surfaceState').textContent=rough>.7?'High-relief conformity':rough<.22?'Polished conformity':'Conforming';
+ $('roughVal').textContent=Math.round(rough*100)+'%';$('glossVal').textContent=Math.round(gloss*100)+'%';$('speedVal').textContent=Math.round(speed*100)+'%';
+ $('roughMetric').textContent=rough.toFixed(2);$('glossMetric').textContent=gloss.toFixed(2);$('speedMetric').textContent=Math.round(speed*100)+'%';
+}
+function selectMaterial(key){
+ current=key;const m=mats[key];targetR=m.rough;targetG=m.gloss;
+ $('rough').value=Math.round(targetR*100);$('gloss').value=Math.round(targetG*100);
+ rough=targetR;gloss=targetG;
+ document.querySelectorAll('.mat').forEach(b=>b.classList.toggle('active',b.dataset.mat===key));
+ updateLabels();
+}
+document.querySelectorAll('.mat').forEach(b=>b.addEventListener('click',()=>selectMaterial(b.dataset.mat)));
+$('rough').addEventListener('input',e=>{rough=+e.target.value/100;updateLabels()});
+$('gloss').addEventListener('input',e=>{gloss=+e.target.value/100;updateLabels()});
+$('speed').addEventListener('input',e=>{speed=+e.target.value/100;updateLabels()});
+sphere.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,rot,tilt};sphere.setPointerCapture(e.pointerId)});
+sphere.addEventListener('pointermove',e=>{if(!drag)return;rot=drag.rot+(e.clientX-drag.x)*.009;tilt=clamp(drag.tilt+(e.clientY-drag.y)*.006,-.9,.9)});
+sphere.addEventListener('pointerup',()=>drag=null);sphere.addEventListener('pointercancel',()=>drag=null);
+sphere.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom-e.deltaY*.001,.72,1.5)},{passive:false});
+function frame(ts){let dt=Math.min(.05,(ts-last)/1000||0);last=ts;phase+=dt;try{drawSphere(phase);drawMicro(phase)}catch(err){console.error('THE MIMIC render error:',err)}requestAnimationFrame(frame)}
+selectMaterial('wood');updateLabels();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
